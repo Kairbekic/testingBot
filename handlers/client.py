@@ -1,13 +1,13 @@
 
 from aiogram import  types, Dispatcher
 from create_bot import clientBot, dp
-from keyboards import kb, ikb
+from keyboards import kb_client, ikb_client
 
 HELP_COMMAND = """
 /help - список команд
 <b>/start</b> - <em>начать работу с ботом</em>
 /description - что умеешь?
-<b>❤️ give</b> - <em>стикер</em>
+<b>/give</b> - <em>стикер</em>
 /links - ссылки
 """
 
@@ -23,7 +23,7 @@ async  def start_command(message: types.Message):
     await clientBot.send_message(chat_id=message.from_user.id,
                                  text="Добро пожаловать в наш Бот!",
                                  parse_mode="HTML",
-                                 reply_markup=kb)
+                                 reply_markup=kb_client)
     await message.delete()
 
 #@dp.message_handler(commands=['description'])
@@ -35,7 +35,7 @@ async  def desc_command(message: types.Message):
 #@dp.message_handler(commands=['give'])
 async  def give_command(message: types.Message):
     await clientBot.send_sticker(message.from_user.id,
-                                 sticker="CAACAgIAAxkBAAOBZCbC1uS62ivGg4ilivlO4NtYa_oAArsAAwku4BfvBsIRSARKDC8E")
+                                 sticker="CAACAgIAAxkBAAEIcAxkKrifQDU-LbSv-rkxfpmEzyILpwAC_gADVp29CtoEYTAu-df_LwQ")
 
 #@dp.message_handler(content_types=['sticker'])
 async def send_sticker_id(message: types.Message):
@@ -44,7 +44,7 @@ async def send_sticker_id(message: types.Message):
 @dp.message_handler(commands=['links'])
 async  def links_command(message: types.Message):
     await message.answer(text='Выберите опцию...',
-                         reply_markup=ikb)
+                         reply_markup=ikb_client)
 
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(start_command, commands=['start'])
