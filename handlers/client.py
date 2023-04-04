@@ -1,4 +1,3 @@
-
 from aiogram import  types, Dispatcher
 from create_bot import clientBot, dp
 from keyboards import kb_client, ikb_client
@@ -46,6 +45,7 @@ async  def links_command(message: types.Message):
     await message.answer(text='Выберите опцию...',
                          reply_markup=ikb_client)
 
+#Регистрируем хендлеры
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(start_command, commands=['start'])
     dp.register_message_handler(help_command, commands='help')

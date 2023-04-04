@@ -7,6 +7,7 @@ async def on_startup(_):
 from handlers import client, other, admin
 
 client.register_handlers_client(dp)
+admin.register_handlers_admin(dp)
 other.register_handlers_other(dp)
 
 if __name__ == '__main__':
