@@ -1,54 +1,31 @@
 from aiogram import  types, Dispatcher
 from create_bot import clientBot, dp
 from keyboards import kb_client, ikb_client
+from data_base import sqlite_db
 
-HELP_COMMAND = """
-/help - список команд
-<b>/start</b> - <em>начать работу с ботом</em>
-/description - что умеешь?
-<b>/give</b> - <em>стикер</em>
-/links - ссылки
-"""
-
-#@dp.message_handler(commands=['help'])
-async  def help_command(message: types.Message):
- #   await message.reply(text=HELP_COMMAND, parse_mode="HTML")
-    await clientBot.send_message(chat_id=message.from_user.id,
-                                 text=HELP_COMMAND,
-                                 parse_mode="HTML")
-
-#@dp.message_handler(commands=['start'])
+#@dp.message_handler(commands=['start','help'])
 async  def start_command(message: types.Message):
-    await clientBot.send_message(chat_id=message.from_user.id,
-                                 text="Добро пожаловать в наш Бот!",
-                                 parse_mode="HTML",
-                                 reply_markup=kb_client)
-    await message.delete()
+    try:
+        await clientBot.send_message(chat_id=message.from_user.id, text="Приятного аппетита!", reply_markup=kb_client)
+        await message.delete()
+    except:
+        await message.reply('Общение с ботом через ЛС, напишите ему:\nhttps://t.me/assistant_chakrologist_bot')
 
-#@dp.message_handler(commands=['description'])
-async  def desc_command(message: types.Message):
-    await clientBot.send_message(chat_id=message.from_user.id,
-                                 text="Наш бот умеет отправлять айди стикера")
-    await message.delete()
+#@dp.message_handler(commands=['Режим работы'])
+async  def pizza_open_command(message: types.Message):
+    await clientBot.send_message(chat_id=message.from_user.id, text="Вс-Чт с 9:00 до 20:00, Пт-Сб с 10:00 до 23:00")
 
-#@dp.message_handler(commands=['give'])
-async  def give_command(message: types.Message):
-    await clientBot.send_sticker(message.from_user.id,
-                                 sticker="CAACAgIAAxkBAAEIcAxkKrifQDU-LbSv-rkxfpmEzyILpwAC_gADVp29CtoEYTAu-df_LwQ")
+#@dp.message_handler(commands=['Расположение'])
+async  def pizza_place_command(message: types.Message):
+    await clientBot.send_message(message.from_user.id, 'ул. Толстого 8')
 
-#@dp.message_handler(content_types=['sticker'])
-async def send_sticker_id(message: types.Message):
-    await message.answer(message.sticker.file_id)
-
-@dp.message_handler(commands=['links'])
-async  def links_command(message: types.Message):
-    await message.answer(text='Выберите опцию...',
-                         reply_markup=ikb_client)
+@dp.message_handler(commands=['Меню'])
+async def pizza_menu_command(message: types.Message):
+    await sqlite_db.sql_read(message)
 
 #Регистрируем хендлеры
 def register_handlers_client(dp: Dispatcher):
-    dp.register_message_handler(start_command, commands=['start'])
-    dp.register_message_handler(help_command, commands='help')
-    dp.register_message_handler(desc_command, commands=['description'])
-    dp.register_message_handler(give_command, commands=['give'])
-    dp.register_message_handler(send_sticker_id, commands='sticker')
+    dp.register_message_handler(start_command, commands=['start', 'help'])
+    dp.register_message_handler(pizza_open_command, commands='Режим_работы')
+    dp.register_message_handler(pizza_place_command, commands=['Расположение'])
+    dp.register_message_handler(pizza_menu_command, commands=['Меню'])

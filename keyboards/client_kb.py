@@ -1,11 +1,10 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 
 kb_client = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-button_help = KeyboardButton('/help')
-button_description = KeyboardButton('/description')
-button_give = KeyboardButton('/give')
-button_links = KeyboardButton('/links')
-kb_client.add(button_help).insert(button_description).row(button_links, button_give)
+button_open = KeyboardButton('/Режим_работы')
+button_place = KeyboardButton('/Расположение')
+button_menu = KeyboardButton('/Меню')
+kb_client.add(button_open).row(button_place, button_menu)
 
 ikb_client = InlineKeyboardMarkup(row_width=2)
 ikb1 = InlineKeyboardButton(text='Apple',
