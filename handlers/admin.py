@@ -90,6 +90,9 @@ async def delete_item(message: types.Message):
             await clientBot.send_photo(message.from_user.id, ret[0], f'{ret[1]}\nОписание: {ret[2]}\nЦена {ret[-1]}')
             await clientBot.send_message(message.from_user.id, text='^^^', reply_markup=InlineKeyboardMarkup().
                                          add(InlineKeyboardButton(f'Удалить {ret[1]}', callback_data=f'del {ret[1]}')))
+#Выгрузка в ексель
+async  def export_command(message: types.Message):
+    await clientBot.send_message(message.from_user.id, 'test')
 
 #Регистрируем хендлеры
 def register_handlers_admin(dp : Dispatcher):
@@ -101,4 +104,5 @@ def register_handlers_admin(dp : Dispatcher):
     dp.register_message_handler(load_description, state=FSMAdmin.description)
     dp.register_message_handler(load_price, state=FSMAdmin.price)
     dp.register_message_handler(cancel_handler, state="*", commands='отмена')
+    dp.register_message_handler(export_command, commands=['Выгрузить'])
 

@@ -23,6 +23,7 @@ async  def pizza_place_command(message: types.Message):
 async def pizza_menu_command(message: types.Message):
     await sqlite_db.sql_read(message)
 
+
 #Регистрируем хендлеры
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(start_command, commands=['start', 'help'])

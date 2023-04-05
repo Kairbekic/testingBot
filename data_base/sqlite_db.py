@@ -1,6 +1,8 @@
 import sqlite3 as sq
 from create_bot import clientBot
+#import pandas as pd
 
+#filePath = 'C:\Users\kairbekov_m\Desktop\myEx.xlsx'
 def sql_start():
     global base, cur
     base = sq.connect('pizza_cool.db')
