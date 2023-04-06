@@ -5,13 +5,10 @@ from gsheet import GoogleSheet
 
 def main():
     gs = GoogleSheet()
-    test_range = 'TestList!F2:G4'
-    test_values = [
-        [11, 22],
-        [32, 41],
-        [13, 95]
-    ]
+    test_range = 'TestList!A1:D20'
+    test_values = sqlite_db.myfunc()
     gs.updateRangeValues(test_range, test_values)
+
 async def on_startup(_):
     print('Бот был успешно запущен!')
     sqlite_db.sql_start()

@@ -12,6 +12,15 @@ def sql_start():
     base.execute('CREATE TABLE IF NOT EXISTS menu(img TEXT, name TEXT PRIMARY KEY, description TEXT, price TEXT)')
     base.commit()
 
+def myfunc():
+    test_values = [
+        ["Фото", "Имя", "Описание", "Цена"],
+    ]
+    testList = list()
+    for ret in cur.execute("SELECT * FROM menu").fetchall():
+        test_values.append(ret)
+    return test_values
+
 async def sql_add_command(state):
     async with state.proxy() as data:
         cur.execute('INSERT INTO menu VALUES (?, ?, ?, ?)', tuple(data.values()))
