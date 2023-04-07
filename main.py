@@ -3,16 +3,17 @@ from create_bot import dp
 from data_base import sqlite_db
 from gsheet import GoogleSheet
 
-def main():
+def export():
     gs = GoogleSheet()
-    test_range = 'TestList!A1:D20'
+    test_range = 'TestList!A1:E20'
     test_values = sqlite_db.myfunc()
     gs.updateRangeValues(test_range, test_values)
 
 async def on_startup(_):
     print('Бот был успешно запущен!')
     sqlite_db.sql_start()
-    main()
+    export()
+
 
 
 from handlers import client, other, admin
