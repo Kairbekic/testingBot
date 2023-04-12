@@ -1,6 +1,8 @@
 from __future__ import print_function
 import os.path
 import pickle
+from pprint import pprint
+
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -32,6 +34,13 @@ class GoogleSheet:
 
         self.service = build('sheets', 'v4', credentials=creds)
 
+    def clearRangeValues(self):
+        body = {
+            'ranges': 'TestList!A1:E20'
+        }
+        result = self.service.spreadsheets().values().batchClear(spreadsheetId=self.SPREADSHEET_ID,
+                                                                 body=body).execute()
+        pprint('Cleaning was successful')
     def updateRangeValues(self, range, values):
         data = [{
             'range': range,

@@ -5,6 +5,7 @@ from aiogram.dispatcher.filters import Text
 from data_base import sqlite_db
 from keyboards import admin_kb
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from gsheet import GoogleSheet
 
 from create_bot import dp, clientBot
 
@@ -26,10 +27,10 @@ async def make_changes_command(message: types.Message):
 
 #Начало диалога загрузки нового пункта меню
 #@dp.message_handler(commands='Загрузить', state=None)
-async def cm_srart(message: types.Message):
+async def cm_admin_srart(message: types.Message):
     if message.from_user.id == ID:
         await FSMAdmin.first_name.set()
-        await message.reply('Введите вашу фамилию')
+        await clientBot.send_message(message.from_user.id,'Введите вашу фамилию')
 
 #Выход из состояний
 #@dp.message_handler(state="*", commands="отмена")
@@ -39,7 +40,7 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     if current_state is None:
         return
     await state.finish()
-    await message.reply('OK')
+    await message.reply('Регистрация отменена')
 
 #Ловим первый ответ и пишем в словарь
 #@dp.message_handler(content_types=['first_name'], state=FSMAdmin.first_name)
@@ -48,7 +49,7 @@ async def load_first_name(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['first_name'] = message.text
         await FSMAdmin.next()
-        await message.reply("Введите ваше имя")
+        await clientBot.send_message(message.from_user.id, "Введите ваше имя")
 
 #ловим второй ответ
 #@dp.message_handler(state=FSMAdmin.last_name)
@@ -57,7 +58,7 @@ async def load_last_name(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['last_name'] = message.text
         await FSMAdmin.next()
-        await message.reply("Введите свой номер телефона")
+        await clientBot.send_message(message.from_user.id, "Введите свой номер телефона")
 
 #Ловим третий ответ
 #@dp.message_handler(state=FSMAdmin.phone)
@@ -66,7 +67,7 @@ async def load_phone(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['phone'] = message.text
         await FSMAdmin.next()
-        await message.reply("Укажите страну проживания")
+        await clientBot.send_message(message.from_user.id, "Укажите страну проживания")
 
 #Ловим четвертый ответ
 #@dp.message_handler(state=FSMAdmin.country)
@@ -75,7 +76,7 @@ async def load_country(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['country'] = message.text
         await FSMAdmin.next()
-        await message.reply("Укажите город проживания")
+        await clientBot.send_message(message.from_user.id, "Укажите город проживания")
 
 # Ловим последний ответ и используем полученные данные
 # @dp.message_handler(state=FSMAdmin.city)
@@ -85,6 +86,12 @@ async def load_city(message: types.Message, state: FSMContext):
             data['city'] = message.text
         await sqlite_db.sql_add_command(state)
         await state.finish()
+        await clientBot.send_message(message.from_user.id, 'Регистрация окончена, спасибо', reply_markup = admin_kb.button_case_admin)
+
+@dp.message_handler(commands=['Список'])
+async def list_command(message: types.Message):
+    if message.from_user.id == ID:
+        await sqlite_db.sql_read(message)
 
 @dp.callback_query_handler(lambda x: x.data and x.data.startswith('del '))
 async def del_callback_run(callback_query: types.CallbackQuery):
@@ -96,16 +103,22 @@ async def delete_item(message: types.Message):
     if message.from_user.id == ID:
         read = await sqlite_db.sql_read2()
         for ret in read:
-            await clientBot.send_first_last_name(message.from_user.id, ret[0], f'{ret[1]}\nОписание: {ret[2]}\nЦена {ret[-1]}')
-            await clientBot.send_message(message.from_user.id, text='^^^', reply_markup=InlineKeyboardMarkup().
+            await clientBot.send_message(message.from_user.id, f'\nФамилия: {ret[0]}\nИмя: {ret[1]}\nТелефон: {ret[2]}\nСтрана: {ret[3]}\nГород {ret[-1]}')
+            await clientBot.send_message(message.from_user.id, text='^^^', reply_markup=InlineKeyboardMarkup().\
                                          add(InlineKeyboardButton(f'Удалить {ret[1]}', callback_data=f'del {ret[1]}')))
 #Выгрузка в ексель
 async  def export_command(message: types.Message):
-    await clientBot.send_message(message.from_user.id, 'test')
+    if message.from_user.id == ID:
+        gs = GoogleSheet()
+        test_range = 'TestList!A1:E20'
+        test_values = sqlite_db.myfunc()
+        gs.clearRangeValues()
+        gs.updateRangeValues(test_range, test_values)
+        await clientBot.send_message(message.from_user.id, 'Данные выгружены в Google-таблицу')
 
 #Регистрируем хендлеры
 def register_handlers_admin(dp : Dispatcher):
-    dp.register_message_handler(cm_srart, commands=['Загрузить'], state=None)
+    dp.register_message_handler(cm_admin_srart, commands=['Добавить'], state=None)
     dp.register_message_handler(cancel_handler, Text(equals='отмена', ignore_case=True), state="*")
     dp.register_message_handler(make_changes_command, commands=['moderator'], is_chat_admin=True)
     dp.register_message_handler(load_first_name, state=FSMAdmin.first_name)
@@ -115,4 +128,5 @@ def register_handlers_admin(dp : Dispatcher):
     dp.register_message_handler(load_city, state=FSMAdmin.city)
     dp.register_message_handler(cancel_handler, state="*", commands='отмена')
     dp.register_message_handler(export_command, commands=['Выгрузить'])
+    dp.register_message_handler(list_command, commands=['Список'])
 

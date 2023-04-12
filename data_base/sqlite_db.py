@@ -16,7 +16,7 @@ def myfunc():
     test_values = [
         ["Фамилия", "Имя", "Номер телефона", "Страна", "Город"],
     ]
-    testList = list()
+    #testList = list()
     for ret in cur.execute("SELECT * FROM Users").fetchall():
         test_values.append(ret)
     return test_values
