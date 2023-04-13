@@ -2,6 +2,7 @@ from aiogram import  types, Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from create_bot import clientBot, dp
 from keyboards import client_kb
+from keyboards import program_kb
 from data_base import sqlite_db
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
@@ -20,7 +21,7 @@ async  def pizza_open_command(message: types.Message):
 
 #@dp.message_handler(commands=['Расположение'])
 async  def pizza_place_command(message: types.Message):
-    await clientBot.send_message(message.from_user.id, 'ул. Толстого 8')
+    await clientBot.send_message(message.from_user.id, 'Без адреса')
 
 class FSMClient(StatesGroup):
     first_name = State()
@@ -28,6 +29,8 @@ class FSMClient(StatesGroup):
     phone = State()
     country = State()
     city = State()
+    program_name = State()
+    user_id = State()
 
 #Начало диалога загрузки нового пункта меню
 #@dp.message_handler(commands='Загрузить', state=None)
@@ -45,7 +48,7 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     if current_state is None:
         return
     await state.finish()
-    await message.reply('OK')
+    await message.reply('Регистрация отменена')
 
 #Ловим первый ответ и пишем в словарь
 #@dp.message_handler(content_types=['first_name'], state=FSMAdmin.first_name)
@@ -82,11 +85,18 @@ async def load_country(message: types.Message, state: FSMContext):
 # Ловим последний ответ и используем полученные данные
 # @dp.message_handler(state=FSMAdmin.city)
 async def load_city(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['city'] = message.text
-    await sqlite_db.sql_add_command(state)
-    await state.finish()
-    await clientBot.send_message(message.from_user.id, 'Регистрация окончена, спасибо', reply_markup=client_kb.button_case_client)
+        async with state.proxy() as data:
+            data['city'] = message.text
+        await FSMClient.next()
+        await clientBot.send_message(message.from_user.id, "Укажите курс", reply_markup=program_kb.button_case_program)
+
+async def load_program_name(message: types.Message, state: FSMContext):
+        async with state.proxy() as data:
+            data['program_name'] = message.text
+            data['user_id'] = message.from_user.id
+        await sqlite_db.sql_add_command(state)
+        await state.finish()
+        await clientBot.send_message(message.from_user.id, 'Регистрация окончена, спасибо', reply_markup = client_kb.button_case_client)
 
 
 #Регистрируем хендлеры
@@ -101,4 +111,5 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(load_phone, state=FSMClient.phone)
     dp.register_message_handler(load_country, state=FSMClient.country)
     dp.register_message_handler(load_city, state=FSMClient.city)
+    dp.register_message_handler(load_program_name, state=FSMClient.program_name)
     dp.register_message_handler(cancel_handler, state="*", commands='отмена')

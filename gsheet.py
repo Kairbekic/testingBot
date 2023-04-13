@@ -8,7 +8,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
-SAMPLE_RANGE_NAME = 'Test List!A2:E246'
+SAMPLE_RANGE_NAME = 'Test List!A2:G246'
 
 class GoogleSheet:
     SPREADSHEET_ID = '1xlEgz_yZ9iR2K5F_h9VuqgxRC59nBJvlXi7QXVMyCUs'
@@ -36,7 +36,7 @@ class GoogleSheet:
 
     def clearRangeValues(self):
         body = {
-            'ranges': 'TestList!A1:E20'
+            'ranges': 'TestList!A1:G246'
         }
         result = self.service.spreadsheets().values().batchClear(spreadsheetId=self.SPREADSHEET_ID,
                                                                  body=body).execute()
